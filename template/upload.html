@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        h1 {text-align: center;} 
+     </style>
+</head>
+
+<body>
+    <h1>Image Processing Web</h1>
+    <h3>Load Image:</h3>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}    
+        {{form.as_p}}
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
+

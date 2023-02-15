@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+{% load static %}
+<head>
+    <title>Image Processing</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/process.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+</head>
+
+
+<body>
+    <h1 style="text-align: center;">Image Processing Web</h1>
+    <img id='img1' src="{{image.image.url}}" width="400px" height="400px"> <br>
+    <p style="display: inline;">Mask size</p> 
+    <input id='mask_size' type="number"></input><br><br>
+    <p style="display: inline;">Brightness</p>  
+    <input  type="range" id="slider" min="1" max="255" value="50"> 
+    <span   id="slider-value">50</span><br><br><br>
+    <button id ="process">Process Image</button> <br><br>
+    <button class = "save" style="display: block; margin: 0 auto; text-align: center;" id ="save"> Save Parameters </button> 
+
+    <form action="/login/">       
+        <button type="submit" class ="log_out">Log out</button> 
+    </form>
+
+    <form action="/history/">       
+        <button type="submit" class ="history">History</button> 
+    </form>
+
+    <script src="{% static 'scripts/process.js' %}"></script>
+</body>
+
+</html>
+
+
+

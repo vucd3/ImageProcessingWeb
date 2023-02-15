@@ -1,0 +1,24 @@
+<html>
+    <head>
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/signup.css' %}">
+    </head>
+    <body>
+        <div class="login-section">
+            <h1>Login</h1>
+            <form method="post">
+              {% csrf_token %} 
+              <input name='user_name' type="text" placeholder="Full Name">
+              <input name = 'passwd' type="password" placeholder="Password">
+              <button id = "login" type="submit">Login</button><br>
+              {{status}}
+            </form>
+
+            <form action="/signup/">
+              <p>No account? </p>
+              <button style="display: inline;" type="submit">Sign Up</button>
+            </form>
+          </div>
+    </body>
+
+</html>
