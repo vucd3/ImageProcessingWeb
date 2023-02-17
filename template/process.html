@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
 
-{% load static %}
+
 <head>
     <title>Image Processing</title>
+    {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/process.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+
 </head>
 
 
@@ -19,18 +20,21 @@
     <input  type="range" id="slider" min="1" max="255" value="50"> 
     <span   id="slider-value">50</span><br><br><br>
     <button id ="process">Process Image</button> <br><br>
+ 
     <button class = "save" style="display: block; margin: 0 auto; text-align: center;" id ="save"> Save Parameters </button> 
 
     <form action="/login/">       
         <button type="submit" class ="log_out">Log out</button> 
     </form>
 
-    <form action="/history/">       
+    <form action="/history/" method="post">       
         <button type="submit" class ="history">History</button> 
     </form>
 
-    <script src="{% static 'scripts/process.js' %}"></script>
+    
 </body>
+
+<script src="{% static 'scripts/process.js' %}"></script>
 
 </html>
 

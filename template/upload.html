@@ -2,16 +2,15 @@
 <html>
 
 <head>
-    <style>
-        h1 {text-align: center;} 
-     </style>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/upload.css' %}">
+
 </head>
 
 <body>
     <h1>Image Processing Web</h1>
-    <h3>Load Image:</h3>
-
     <form method="post" enctype="multipart/form-data">
+        <h3>Load Image</h3>
         {% csrf_token %}    
         {{form.as_p}}
         <button type="submit">Upload</button>

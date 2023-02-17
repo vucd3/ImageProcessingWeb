@@ -6,12 +6,17 @@ import cv2
 import base64
 from django.views.decorators.csrf import csrf_exempt
 import mysql.connector as sql
+import time
 
 
 #Define global variables
 isClicked = False
 isLogined = False
 usr_name = ""
+process_time = 100
+
+m = sql.connect(host="localhost", user="vu", passwd="maixuanvu", database="image_processing")
+cursor = m.cursor()
 
 # Create your views here.
 def sign_up(request):
@@ -20,8 +25,6 @@ def sign_up(request):
         pass_wd = request.POST.get("passwd")
         
         #Save user info to database
-        m = sql.connect(host="localhost", user="vu", passwd="maixuanvu", database="image_processing")
-        cursor = m.cursor()
         cursor.execute("SELECT  * from users")
         rows = cursor.fetchall()
         m.commit()
@@ -39,8 +42,6 @@ def sign_up(request):
 
 def save_user(user_name, pass_wd):
     try:
-        m = sql.connect(host="localhost", user="vu", passwd="maixuanvu", database="image_processing")
-        cursor = m.cursor()
         c = "insert into users Values('{}', '{}')" .format(user_name, pass_wd)
         cursor.execute(c)
         m.commit()
@@ -50,9 +51,7 @@ def save_user(user_name, pass_wd):
         
 
 def log_in(request):
-    m = sql.connect(host="localhost", user="vu", passwd="maixuanvu", database="image_processing")
-    cursor = m.cursor()
-    cursor.execute("SELECT  * from users")
+    cursor.execute("SELECT * from users")
     rows = cursor.fetchall()
     m.commit()
     user_names = [name[0] for name in rows]
@@ -78,13 +77,14 @@ def log_in(request):
 def log_out(request):
     return render(request, 'login.html')
 
+
 def upload_image(request):
     if isLogined == False:
          return redirect('/login/') 
     if request.method == 'POST':
         form = ImageForm(data = request.POST, files=request.FILES)
         if form.is_valid():
-            form.save()       
+            form.save()     
             return redirect('/process_image/')
     else:
         form = ImageForm()
@@ -101,6 +101,7 @@ def image_processing(request):
 
     return render(request, 'process.html', {"image": image})
 
+
 @csrf_exempt
 def perform_process(request):  
     global isClicked
@@ -116,6 +117,7 @@ def perform_process(request):
             else:
                 mask_size_tmp = mask_size
 
+            start_time = time.time()
             #Do image blurring
             blur = cv2.GaussianBlur(img, sigmaX=5, sigmaY=5, ksize=(mask_size_tmp, mask_size_tmp))
 
@@ -129,26 +131,34 @@ def perform_process(request):
             #Do brightness change
             alpha = slider_value/255
             img = blur*alpha
-            cv2.imwrite("a.jpg", img)
+            end_time = time.time()
+            
+            global process_time
+            process_time = end_time - start_time
 
+            print(process_time)
+            cv2.imwrite("processed_image.jpg", img)
             # Encode the processed image as a JPEG
             _, encoded_image = cv2.imencode(".jpg", img)
         except:
             return JsonResponse({"status": "fail"})
-    
+
     # Return the encoded image as a response
     return JsonResponse({"image": base64.b64encode(encoded_image.tobytes()).decode('utf-8'), "status": "succes"})
 
-
 def save_infor(request):
+    if not isClicked:
+        return JsonResponse({"status": "Not process image yet!"})
+
     image_params_model = ImageProcessing.objects.last()
     masksize = image_params_model.mask_size
     brightness = image_params_model.brightness
 
+    
     try:
-        m = sql.connect(host="localhost", user="vu", passwd="maixuanvu", database="image_processing")
-        cursor = m.cursor()
         c = "insert into IP_params Values('{}', '{}', '{}')" .format(masksize, brightness, usr_name)
+        processed_img = cv2.imread("processed_image.jpg")
+        cv2.imwrite('saved_images/{}_{}_{}.jpeg' .format(usr_name, str(masksize), str(brightness)), processed_img)
         cursor.execute(c)
         m.commit()
         return JsonResponse({"status": "success"})
@@ -156,5 +166,27 @@ def save_infor(request):
         return JsonResponse({"status": "fail"})
 
 
+@csrf_exempt
 def history(request):
-    return render(request, 'history.html')
+    if isLogined == False:
+        return redirect('/login')
+
+    cursor.execute("SELECT * from IP_Params where user_name = '{}'".format(usr_name))
+    rows = cursor.fetchall()
+    m.commit()
+    encoded_images = []
+    mask_sizes = []
+    brightnesses = []
+    info = []
+
+    for row in rows:
+        image_dir = "saved_images/{}_{}_{}.jpeg" .format(usr_name, str(row[0]), str(row[1]))
+        img = cv2.imread(image_dir)
+        _, encoded_image = cv2.imencode(".jpg", img)
+        image_base64 = base64.b64encode(encoded_image.tobytes()).decode('utf-8')
+        encoded_images.append(image_base64)
+        mask_sizes.append(row[0])
+        brightnesses.append(row[1])
+    info = zip(encoded_images, mask_sizes, brightnesses)
+
+    return render(request, 'history.html', {"info": info})

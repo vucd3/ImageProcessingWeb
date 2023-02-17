@@ -38,15 +38,12 @@ $("#save").click(function() {
             if (data.status == "success"){
                 alert("Save image information succesfully!");
             }
+            else if (data.status == "fail"){
+                alert("Save image information fail!");
+            }
             else{
-                alert("Save image information fail!")
+                alert(data.status);
             }
         }
     });
 });
-
-
-
-
-
-    

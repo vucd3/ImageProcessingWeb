@@ -10,6 +10,6 @@ urlpatterns = [
     path('process_image/', views.image_processing),
     path('perform_process/', views.perform_process, name='perform_process'), 
     path('save_infor/', views.save_infor, name = 'save_infor'),
-    path('history/', views.history),
+    path('history/', views.history)
 ]
 

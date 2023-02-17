@@ -1,1 +1,5 @@
-history
+{% for index in info %}
+    <img src="data:image/jpeg;base64, {{index.0}}" width="400px" height="400px"><br>
+    <p>Mask Size: {{index.1}}</p>
+    <p>Brightness: {{index.2}}</p>
+{% endfor %}
